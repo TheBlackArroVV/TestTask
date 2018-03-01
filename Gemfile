@@ -34,9 +34,8 @@ gem 'jbuilder', '~> 2.5'
 # gem 'capistrano-rails', group: :development
 
 # for charts
-gem 'chartist-rails'
 gem 'chartjs-ror'
-gem 'echarts-rails'
+gem 'momentjs-rails'
 
 # bootstrap
 gem 'bootstrap-sass'

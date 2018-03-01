@@ -11,10 +11,9 @@
 // about supported directives.
 //
 //= require rails-ujs
+//= require moment
 //= require turbolinks
-//= require chartist
 //= require Chart.bundle.min
-//= require echarts
 //= require jquery
 //= require bootstrap-sprockets
 //= require_tree .

@@ -56,7 +56,6 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (>= 2.0, < 4.0)
-    chartist-rails (0.9.7)
     chartjs-ror (3.3.1)
       rails (>= 3.1)
     childprocess (0.8.0)
@@ -70,7 +69,6 @@ GEM
     coffee-script-source (1.12.2)
     concurrent-ruby (1.0.5)
     crass (1.0.3)
-    echarts-rails (0.1.8)
     erubi (1.7.0)
     execjs (2.7.0)
     ffi (1.9.23)
@@ -98,6 +96,8 @@ GEM
     mini_mime (1.0.0)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
+    momentjs-rails (2.17.1)
+      railties (>= 3.1)
     multi_json (1.13.1)
     nio4r (2.2.0)
     nokogiri (1.8.2)
@@ -191,13 +191,12 @@ DEPENDENCIES
   bootstrap-sass
   byebug
   capybara (~> 2.13)
-  chartist-rails
   chartjs-ror
   coffee-rails (~> 4.2)
-  echarts-rails
   jbuilder (~> 2.5)
   jquery-rails
   listen (>= 3.0.5, < 3.2)
+  momentjs-rails
   puma (~> 3.7)
   rails (~> 5.1.5)
   sass-rails (~> 5.0)

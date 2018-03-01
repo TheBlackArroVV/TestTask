@@ -1,16 +1,18 @@
 <div class="container-fluid">
-  <%= form_for :pages do |f| %>
+  <%= form_for :csv do |f| %>
     <%= f.label :file %>
     <%= f.file_field :file %>
-    <%= f.submit "Save" %>
+    <%= f.submit "Load File" %>
   <% end %>
 </div>
 
 <% @created_at = Array.new %>
 <% @duration = Array.new %>
+<% @summary_status = Array.new %>
 
 <% for i in 0..@file.count - 1 do %>
   <% @created_at[i] = @file[i][2] %>
+  <% @summary_status[i] = @file[i][3]%>
   <% @duration[i] = @file[i][4]%>
 <% end %>
 
@@ -19,91 +21,49 @@
   datasets: [
     {
         label: "Duration vs Time",
-        backgroundColor: "rgba(220,220,220,0.2)",
-        borderColor: "rgba(220,220,220,1)",
+        backgroundColor: "rgba(0,0,0,0.2)",
+        borderColor: "rgba(0,0,0,1)",
         data: @duration
     }
   ]
 } %>
-<% @options = {
-    width: 300,
-    height: 300
-  }
-  %>
-<div class="chart", style="width: 700px">
-  <%= line_chart @data, @options %>
+
+<%= @duration.count %>
+<%= @created_at.count %>
+<%= @summary_status.count %>
+
+<div class="second-chart">
+  <%= line_chart @data %>
 </div>
-<!-- <div class="ct-chart"></div> -->
-
-<!-- <script type="text/javascript">
 
 
+<% for i in 0..@created_at.count - 1 do %>
+  <% @created_at[i] = @created_at[i].to_date %>
+<% end %>
 
-  console.log(created_at);
+<% @a = Array.new %>
 
-//
-//   console.log(created_at);
-//   new Chartist.Bar('.ct-chart', {
-//       labels: duration.split(","),
-//       series:
-//       [created_at.split(",")]
-//     }, {
-//       stackBars: true,
-//       axisY: {
-//         labelInterpolationFnc: function(value) {
-//           return (value / 1000);
-//         }
-//       }
-//     }).on('draw', function(data) {
-//       if(data.type === 'bar') {
-//         data.element.attr({
-//           style: 'stroke-width: 30px'
-//         });
-//       }
-//     });
-  var data = {
-  // A labels array that can contain any sort of values
-  labels: created_at,
-  // Our series array that contains series objects or in this case series data arrays
-  series: [
-    duration
+<% for i in 0 .. @summary_status.count - 1 do %>
+  <% @a[i] = 0 if @summary_status[i] == "passed" %>
+  <% @a[i] = 1 if @summary_status[i] == "failed" %>
+  <% @a[i] = 2 if @summary_status[i] == "error" %>
+  <% @a[i] = 3 if @summary_status[i] == "stopped" %>
+<% end %>
+
+<%= @a[1] %>
+
+<% @data = {
+  labels: @created_at,
+  datasets: [
+    {
+        label: "Stack Chart, 0 for passed, 1 for failed, 2 for failed, 3 for stopped",
+        backgroundColor: "rgba(0,0,0,0.2)",
+        borderColor: "rgba(0,0,0,1)",
+        data: @a
+    }
   ]
-};
+} %>
 
-// Create a new line chart object where as first parameter we pass in a selector
-// that is created_atolving to our chart container element. The Second parameter
-// is the actual data object.
-// new Chartist.Line('.ct-chart', data);
-</script> -->
-<!-- prepare a DOM container with width and height -->
-<!-- <div id="main" style="width: 600px;height:400px;"></div>
-<script type="text/javascript">
-    var duration = "<%= @duration %>"
-    var created_at = "<%= @created_at %>"
-
-    // based on prepared DOM, initialize echarts instance
-    var myChart = echarts.init(document.getElementById('main'));
-
-    // specify chart configuration item and data
-    var option = {
-        title: {
-            text: 'ECharts entry example'
-        },
-        tooltip: {},
-        legend: {
-            data:['Sales']
-        },
-        xAxis: {
-            data: duration.split(",")
-        },
-        yAxis: {},
-        series: [{
-            name: 'Sales',
-            type: 'bar',
-            data: [5, 10, 12, 20, 222]
-        }]
-    };
-    console.log(duration.split(",")[1]);
-    // use configuration item and data specified to show chart
-    myChart.setOption(option);
-</script> -->
+<div class="first-chart">
+  <%= bar_chart @data %>
+</div>
