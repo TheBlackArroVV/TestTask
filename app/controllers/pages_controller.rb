@@ -2,15 +2,12 @@ class PagesController < ApplicationController
   require 'csv'
 
   def index
-    if params[:pages] != nil
-      pp @file = CSV.open(params[:pages][:file].path)
+    if params[:pages] == nil
+      @file = CSV.read(Rails.root.join("session_history.csv"))
+      @file.delete_at(0)
     else
-      original_file
+      @file = CSV.read(params[:pages][:file].path)
+      @file.delete_at(0)
     end
-  end
-
-private
-  def original_file
-    @file = CSV.open(Rails.root.join("session_history.csv"))
   end
 end
