@@ -1,3 +1,9 @@
+<%= form_for :pages do |f| %>
+  <%= f.label :file %>
+  <%= f.file_field :file %>
+  <%= f.submit "Save" %>
+<% end %>
+
 <% @file.each do |f| %>
   <% f.each do |a| %>
     <%= a %>
