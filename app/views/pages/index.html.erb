@@ -10,12 +10,15 @@
 <% @duration = Array.new %>
 <% @passed_tests = Array.new %>
 <% @failed_tests = Array.new %>
+<% @tests_count = Array.new %>
+<% @normal = Array.new %>
 
 <% for i in 0 .. @file.count - 1 do %>
   <% @created_at[i] = @file[i][2] %>
-  <% @duration[i] = @file[i][4]%>
-  <% @passed_tests[i] = @file[i][11]%>
-  <% @failed_tests[i] = @file[i][12]%>
+  <% @duration[i] = @file[i][4] %>
+  <% @passed_tests[i] = @file[i][11].to_i %>
+  <% @failed_tests[i] = @file[i][12].to_i %>
+  <%# @tests_count[i] = @file[i][10].to_i + @file[i][11].to_i + @file[i][12].to_i + @file[i][13].to_i + @file[i][14].to_i + @file[i][15].to_i %>
 <% end %>
 
 
@@ -31,23 +34,42 @@
   ]
 } %>
 
-<div class="second-chart">
-  <%= line_chart @data %>
-</div>
+<% @options = {
+  responsive: true
+} %>
 
+<div class="second-chart", style="width: 50%;">
+  <%= line_chart @data, @options %>
+</div>
 
 <% for i in 0 .. @created_at.count - 1 do %>
   <% @created_at[i] = @created_at[i].to_date %>
 <% end %>
 
+<% @i = 0 %>
+<% @avg = 0 %>
+<% @failed_tests.each do |f| %>
+  <% if f != 0 %>
+    <% @avg = @avg + f %>
+    <% @i = @i + 1 %>
+  <% end %>
+<% end %>
+<% @avg = @avg / @i %>
 
 <% for i in 0 .. @created_at.count - 1 do %>
+  <% if @passed_tests[i].present? and @failed_tests[i].present? %>
+    <% if (@passed_tests[i] + @failed_tests[i]) == 0  %>
+      <% @created_at[i] = nil %>
+      <% @passed_tests[i] = nil %>
+      <% @failed_tests[i] = nil %>
+    <% end %>
+  <% end %>
   <% for j in i + 1 .. @created_at.count - 1  do %>
     <% if (@created_at[i] == @created_at[j]) && (@created_at[i] != nil) %>
       <% @created_at[j] = nil %>
-      <% @passed_tests[i] = @passed_tests[i].to_i + @passed_tests[j].to_i %>
+      <% @passed_tests[i] = @passed_tests[i] + @passed_tests[j] %>
       <% @passed_tests[j] = nil %>
-      <% @failed_tests[i] = @failed_tests[i].to_i + @failed_tests[j].to_i %>
+      <% @failed_tests[i] = @failed_tests[i] + @failed_tests[j] %>
       <% @failed_tests[j] = nil %>
     <% end %>
   <% end %>
@@ -56,11 +78,25 @@
 <% @created_at.delete(nil) %>
 <% @passed_tests.delete(nil) %>
 <% @failed_tests.delete(nil) %>
+<% @abnormal = Array.new %>
+
+<% for i in 0 .. @failed_tests.count - 1 do %>
+  <% if (@failed_tests[i] > @avg) %>
+    <% @abnormal[i] = @failed_tests[i] %>
+  <% else %>
+    <% @abnormal[i] = 0 %>
+  <% end %>
+<% end %>
 
 <% @data = {
   labels: @created_at,
   datasets: [
-
+    {
+        label: "abnormal",
+        backgroundColor: "rgb(0, 0, 0)",
+        borderColor: "rgb(0, 0, 0)",
+        data: @abnormal
+    },
     {
         label: "Failed",
         backgroundColor: "rgb(189,19,19)",
@@ -77,7 +113,7 @@
 } %>
 
 <% @options = {
-  responsive: false,
+  responsive: true,
   scales: {
             xAxes: [{
                 stacked: true
@@ -90,5 +126,5 @@
 %>
 
 <div class="first-chart">
-  <%= bar_chart @data %>
+  <%= bar_chart @data, @options %>
 </div>
