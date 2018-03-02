@@ -10,65 +10,19 @@ class PagesController < ApplicationController
       @file.delete_at(0)
     end
 
+
+    # line chart
     @created_at = Array.new
     @duration = Array.new
-    @passed_tests = Array.new
-    @failed_tests = Array.new
-    @tests_count = Array.new
+    @summary_status = Array.new
     @normal = Array.new
 
     for i in 0 .. @file.count - 1 do
       @created_at[i] = @file[i][2]
+      @summary_status[i] = @file[i][3]
       @duration[i] = @file[i][4]
-      @passed_tests[i] = @file[i][11].to_i
-      @failed_tests[i] = @file[i][12].to_i
     end
 
-    @created_at_date = @created_at.clone
-    for i in 0 .. @created_at_date.count - 1 do
-      @created_at_date[i] = @created_at_date[i].to_date
-    end
-
-    @i = 0
-    @avg = 0
-    @failed_tests.each do |f|
-      if f != 0
-        @avg = @avg + f
-        @i = @i + 1
-      end
-    end
-    @avg = @avg / @i
-
-    for i in 0 .. @created_at_date.count - 1 do
-      if @passed_tests[i].present? and @failed_tests[i].present?
-        if (@passed_tests[i] + @failed_tests[i]) == 0
-          @created_at_date[i] = nil
-          @passed_tests[i] = nil
-          @failed_tests[i] = nil
-        end
-      end
-      for j in i + 1 .. @created_at_date.count - 1  do
-        if (@created_at_date[i] == @created_at_date[j]) && (@created_at_date[i] != nil)
-          @created_at_date[j] = nil
-          @passed_tests[i] = @passed_tests[i] + @passed_tests[j]
-          @passed_tests[j] = nil
-          @failed_tests[i] = @failed_tests[i] + @failed_tests[j]
-          @failed_tests[j] = nil
-        end
-      end
-    end
-
-    @created_at_date.delete(nil)
-    @passed_tests.delete(nil)
-    @failed_tests.delete(nil)
-    @abnormal = Array.new
-    for i in 0 .. @failed_tests.count - 1 do
-      if (@failed_tests[i] >= @avg)
-        @abnormal[i] = @failed_tests[i]
-      else
-        @abnormal[i] = 0
-      end
-    end
     @data_l = {
       labels: @created_at,
       datasets: [
@@ -83,26 +37,88 @@ class PagesController < ApplicationController
     @options_l = {
       responsive: true
     }
+
+
+    # stacked chart
+
+    @passed_builds = Array.new
+    @failed_builds = Array.new
+
+    @created_at_date = @created_at.clone
+    for i in 0 .. @created_at_date.count - 1 do
+      @created_at_date[i] = @created_at_date[i].to_date
+    end
+
+
+
+    for i in 0 .. @created_at_date.count - 1 do
+      if (@summary_status[i] == "passed")
+        @passed_builds[i] = @passed_builds[i].to_i + 1
+        @failed_builds[i] = 0
+      elsif (@summary_status[i] == "failed")
+        @failed_builds[i] = @failed_builds[i].to_i + 1
+        @passed_builds[i] = 0
+      else
+        @failed_builds[i] = 0
+        @passed_builds[i] = 0
+      end
+    end
+
+    for i in 0 .. @created_at_date.count - 1 do
+      for j in i + 1 .. @created_at_date.count - 1 do
+        if (@created_at_date[i] == @created_at_date[j]) && (@created_at_date[i] != nil)
+            @created_at_date[j] = nil
+            @passed_builds[i] = @passed_builds[i] + @passed_builds[j]
+            @passed_builds[j] = nil
+            @failed_builds[i] = @failed_builds[i] + @failed_builds[j]
+            @failed_builds[j] = nil
+        end
+      end
+    end
+
+    @created_at_date.delete(nil)
+    @passed_builds.delete(nil)
+    @failed_builds.delete(nil)
+
+    @i = 0
+    @avg = 0
+    @failed_builds.each do |f|
+      if f != 0
+        @avg = @avg + f
+        @i = @i + 1
+      end
+    end
+    @avg = @avg / @i
+
+    @abnormal = Array.new
+    for i in 0 .. @failed_builds.count - 1 do
+      if (@failed_builds[i] >= @avg)
+        @abnormal[i] = @failed_builds[i]
+      else
+        @abnormal[i] = 0
+      end
+    end
+
     @data_c = {
       labels: @created_at_date,
       datasets: [
         {
-            label: "abnormal",
-            backgroundColor: "rgb(0, 0, 0)",
-            borderColor: "rgb(0, 0, 0)",
+            label: "Abnormal",
+            backgroundColor: "rgb(0,0,0)",
+            borderColor: "rgb(0,0,0)",
             data: @abnormal
         },
         {
             label: "Failed",
             backgroundColor: "rgb(189,19,19)",
             borderColor: "rgb(189,19,19)",
-            data: @failed_tests
+            data: @failed_builds
         },
         {
             label: "Passed",
             backgroundColor: "rgb(38,114,38)",
             borderColor: "rgb(38,114,38)",
-            data: @passed_tests
+            data: @passed_builds
         }
       ]
     }
