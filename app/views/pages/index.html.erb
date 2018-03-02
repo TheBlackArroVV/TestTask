@@ -1,9 +1,12 @@
-<div class="container-fluid">
+<div class="container-fluid col-sm-4">
   <%= form_for :csv do |f| %>
     <%= f.label :file %>
     <%= f.file_field :file %>
     <%= f.submit "Load File" %>
   <% end %>
+</div>
+<div class="container-fluid">
+  <h3>Load your CSV file. If not selected app will load default(session_history.csv)</h3>
 </div>
 
 <% @created_at = Array.new %>
@@ -18,7 +21,6 @@
   <% @duration[i] = @file[i][4] %>
   <% @passed_tests[i] = @file[i][11].to_i %>
   <% @failed_tests[i] = @file[i][12].to_i %>
-  <%# @tests_count[i] = @file[i][10].to_i + @file[i][11].to_i + @file[i][12].to_i + @file[i][13].to_i + @file[i][14].to_i + @file[i][15].to_i %>
 <% end %>
 
 
@@ -38,8 +40,11 @@
   responsive: true
 } %>
 
-<div class="second-chart", style="width: 50%;">
+<div class="first-chart col-sm-8", style="width: 50%;">
   <%= line_chart @data, @options %>
+</div>
+<div class="col-sm-4">
+  <h3>Chart: "Duration vs Time"</h3>
 </div>
 
 <% for i in 0 .. @created_at.count - 1 do %>
@@ -81,7 +86,7 @@
 <% @abnormal = Array.new %>
 
 <% for i in 0 .. @failed_tests.count - 1 do %>
-  <% if (@failed_tests[i] > @avg) %>
+  <% if (@failed_tests[i] >= @avg) %>
     <% @abnormal[i] = @failed_tests[i] %>
   <% else %>
     <% @abnormal[i] = 0 %>
@@ -125,6 +130,10 @@
           }
 %>
 
-<div class="first-chart">
+<div class="second-chart col-sm-8">
   <%= bar_chart @data, @options %>
+</div>
+<div class="col-sm-2">
+  <h3>Stacked Bar Chart</h3>
+  <h4>Abnormal is number of failed tests, that bigger or equal than the average sum of non-zero elements (<%= @avg %>) </h4>
 </div>
