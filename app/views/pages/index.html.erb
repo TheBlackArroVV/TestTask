@@ -8,13 +8,16 @@
 
 <% @created_at = Array.new %>
 <% @duration = Array.new %>
-<% @summary_status = Array.new %>
+<% @passed_tests = Array.new %>
+<% @failed_tests = Array.new %>
 
-<% for i in 0..@file.count - 1 do %>
+<% for i in 0 .. @file.count - 1 do %>
   <% @created_at[i] = @file[i][2] %>
-  <% @summary_status[i] = @file[i][3]%>
   <% @duration[i] = @file[i][4]%>
+  <% @passed_tests[i] = @file[i][11]%>
+  <% @failed_tests[i] = @file[i][12]%>
 <% end %>
+
 
 <% @data = {
   labels: @created_at,
@@ -28,42 +31,47 @@
   ]
 } %>
 
-<%= @duration.count %>
-<%= @created_at.count %>
-<%= @summary_status.count %>
-
-<div class="second-chart">
+<div class="second-chart", style="width: 700px">
   <%= line_chart @data %>
 </div>
 
 
-<% for i in 0..@created_at.count - 1 do %>
+<% for i in 0 .. @created_at.count - 1 do %>
   <% @created_at[i] = @created_at[i].to_date %>
 <% end %>
-
-<% @a = Array.new %>
-
-<% for i in 0 .. @summary_status.count - 1 do %>
-  <% @a[i] = 0 if @summary_status[i] == "passed" %>
-  <% @a[i] = 1 if @summary_status[i] == "failed" %>
-  <% @a[i] = 2 if @summary_status[i] == "error" %>
-  <% @a[i] = 3 if @summary_status[i] == "stopped" %>
-<% end %>
-
-<%= @a[1] %>
 
 <% @data = {
   labels: @created_at,
   datasets: [
+
     {
-        label: "Stack Chart, 0 for passed, 1 for failed, 2 for failed, 3 for stopped",
-        backgroundColor: "rgba(0,0,0,0.2)",
-        borderColor: "rgba(0,0,0,1)",
-        data: @a
+        label: "Failed",
+        backgroundColor: "rgb(189,19,19)",
+        borderColor: "rgb(189,19,19)",
+        data: @failed_tests
+    },
+    {
+        label: "Passed",
+        backgroundColor: "rgb(38,114,38)",
+        borderColor: "rgb(38,114,38)",
+        data: @passed_tests
     }
   ]
 } %>
 
-<div class="first-chart">
+<% @options = {
+  responsive: false,
+  scales: {
+            xAxes: [{
+                stacked: true
+            }],
+            yAxes: [{
+                stacked: true
+              }]
+            }
+          }
+%>
+
+<div class="first-chart", style="width: 700px">
   <%= bar_chart @data %>
 </div>
