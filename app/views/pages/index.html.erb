@@ -31,7 +31,7 @@
   ]
 } %>
 
-<div class="second-chart", style="width: 700px">
+<div class="second-chart">
   <%= line_chart @data %>
 </div>
 
@@ -39,6 +39,23 @@
 <% for i in 0 .. @created_at.count - 1 do %>
   <% @created_at[i] = @created_at[i].to_date %>
 <% end %>
+
+
+<% for i in 0 .. @created_at.count - 1 do %>
+  <% for j in i + 1 .. @created_at.count - 1  do %>
+    <% if (@created_at[i] == @created_at[j]) && (@created_at[i] != nil) %>
+      <% @created_at[j] = nil %>
+      <% @passed_tests[i] = @passed_tests[i].to_i + @passed_tests[j].to_i %>
+      <% @passed_tests[j] = nil %>
+      <% @failed_tests[i] = @failed_tests[i].to_i + @failed_tests[j].to_i %>
+      <% @failed_tests[j] = nil %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<% @created_at.delete(nil) %>
+<% @passed_tests.delete(nil) %>
+<% @failed_tests.delete(nil) %>
 
 <% @data = {
   labels: @created_at,
@@ -72,6 +89,6 @@
           }
 %>
 
-<div class="first-chart", style="width: 700px">
+<div class="first-chart">
   <%= bar_chart @data %>
 </div>
