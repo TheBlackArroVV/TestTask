@@ -3,9 +3,9 @@ class PagesController < ApplicationController
 
   def index
     if params[:csv].nil?
-      @file = CSV.read(Rails.root.join('session_history.csv'))
+      @file = CSV.readlines(Rails.root.join('public/session_history.csv'), skip_blanks: true).reject { |row| row.all?(&:nil?) }
     else
-      @file = CSV.read(params[:csv][:file].path)
+      @file = CSV.readlines(params[:csv][:file].path, skip_blanks: true).reject { |row| row.all?(&:nil?) }
     end
     @file.delete_at(0)
 
@@ -23,12 +23,14 @@ class PagesController < ApplicationController
 
     @data_l = {
       labels: @created_at,
-      datasets: [{
-            label:  'Duration vs Time',
-            backgroundColor:   'rgba(0,0,0,0.2)',
-            borderColor:  'rgba(0,0,0,1)',
-            data:  @duration
-        }]
+      datasets: [
+        {
+          label:  'Duration vs Time',
+          backgroundColor:   'rgba(0,0,0,0.2)',
+          borderColor:  'rgba(0,0,0,1)',
+          data:  @duration
+        }
+      ]
     }
     @options_l = {
       responsive: true
@@ -40,43 +42,29 @@ class PagesController < ApplicationController
     @failed_builds = []
 
     @created_at_date = @created_at.clone
-    @created_at_date.map! { |c| c.to_date  }
+    @created_at_date.map!(&:to_date)
 
-    for i in 0..@created_at_date.count - 1 do
-      if @summary_status[i] == 'passed'
-        @passed_builds[i] = @passed_builds[i].to_i + 1
-        @failed_builds[i] = 0
-      elsif @summary_status[i] == 'failed'
-        @failed_builds[i] = @failed_builds[i].to_i + 1
-        @passed_builds[i] = 0
+    @summary_status.each do |c|
+      if c == 'passed'
+        @passed_builds.push(1.to_i)
+        @failed_builds.push(0.to_i)
+      elsif c == 'failed'
+        @passed_builds.push(0.to_i)
+        @failed_builds.push(1.to_i)
       else
-        @failed_builds[i] = 0
-        @passed_builds[i] = 0
+        @passed_builds.push(0.to_i)
+        @failed_builds.push(0.to_i)
       end
     end
 
-    # @created_at_date.each do |c|
-    #   if c == 'passed'
-    #     @passed_builds.push(1)
-    #     @failed_builds.push(0)
-    #   elsif c == 'failed'
-    #     @passed_builds.push(0)
-    #     @failed_builds.push(1)
-    #   else
-    #     @passed_builds.push(0)
-    #     @failed_builds.push(0)
-    #   end
-    # end
-
     for i in 0..@created_at_date.count - 1 do
       for j in i + 1..@created_at_date.count - 1 do
-        if @created_at_date[i] == @created_at_date[j] && !@created_at_date[i].nil?
-          @created_at_date[j] = nil
-          @passed_builds[i] = @passed_builds[i] + @passed_builds[j]
-          @passed_builds[j] = nil
-          @failed_builds[i] = @failed_builds[i] + @failed_builds[j]
-          @failed_builds[j] = nil
-        end
+        next unless @created_at_date[i] == @created_at_date[j] && !@created_at_date[i].nil?
+        @created_at_date[j] = nil
+        @passed_builds[i] = @passed_builds[i] + @passed_builds[j]
+        @passed_builds[j] = nil
+        @failed_builds[i] = @failed_builds[i] + @failed_builds[j]
+        @failed_builds[j] = nil
       end
     end
 
@@ -95,40 +83,46 @@ class PagesController < ApplicationController
     @avg /= @i
 
     @abnormal = []
-    for i in 0..@failed_builds.count - 1 do
-      if @failed_builds[i] >= @avg
-        @abnormal[i] = @failed_builds[i]
+    @failed_builds.each do |f|
+      if f >= @avg
+        @abnormal.push(f)
       else
-        @abnormal[i] = 0
+        @abnormal.push(0)
       end
     end
 
     @data_c = {
       labels: @created_at_date,
       datasets: [
-        {   label:  'Abnormal',
-            backgroundColor: 'rgb(0,0,0)',
-            borderColor: 'rgb(0,0,0)',
-            data: @abnormal
+        {
+          label:  'Abnormal',
+          backgroundColor: 'rgb(0,0,0)',
+          borderColor: 'rgb(0,0,0)',
+          data: @abnormal
         },
-        {   label:  'Failed',
-            backgroundColor: 'rgb(189,19,19)',
-            borderColor: 'rgb(189,19,19)',
-            data: @failed_builds
+        {
+          label:  'Failed',
+          backgroundColor: 'rgb(189,19,19)',
+          borderColor: 'rgb(189,19,19)',
+          data: @failed_builds
         },
-        {  label:  'Passed',
-            backgroundColor: 'rgb(38,114,38)',
-            borderColor: 'rgb(38,114,38)',
-            data: @passed_builds
+        {
+          label:  'Passed',
+          backgroundColor: 'rgb(38,114,38)',
+          borderColor: 'rgb(38,114,38)',
+          data: @passed_builds
         }
       ]
     }
-    @options_c = {
-      responsive: true,
-      scales: {
-                xAxes:  [{  stacked:  true }],
-                yAxes:  [{  stacked:  true }]
-              }
-            }
+
+    @options_c =
+      {
+        responsive: true,
+        scales:
+        {
+          xAxes:  [{  stacked: true }],
+          yAxes:  [{  stacked: true }]
+        }
+      }
   end
 end
