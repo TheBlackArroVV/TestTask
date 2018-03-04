@@ -6,4 +6,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should post index" do
+    post pages_index_url
+    assert_response :success
+  end
+
 end

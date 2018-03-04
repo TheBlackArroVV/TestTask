@@ -3,7 +3,7 @@ class PagesController < ApplicationController
 
   def index
     if params[:csv].nil?
-      @file = CSV.readlines(Rails.root.join('public/session_history.csv'), skip_blanks: true).reject { |row| row.all?(&:nil?) }
+      @file = CSV.readlines(Rails.root.join('public/csv/session_history.csv'), skip_blanks: true).reject { |row| row.all?(&:nil?) }
     else
       @file = CSV.readlines(params[:csv][:file].path, skip_blanks: true).reject { |row| row.all?(&:nil?) }
     end

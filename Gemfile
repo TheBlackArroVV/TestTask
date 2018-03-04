@@ -47,6 +47,8 @@ group :development, :test do
   gem 'selenium-webdriver'
   # Use sqlite3 as the database for Active Record
   gem 'sqlite3'
+  # tests
+  gem 'rspec-rails'
 end
 
 group :development do
