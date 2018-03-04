@@ -7,9 +7,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should post index" do
-    # file_csv = fixture_file_upload('files/session_history.csv', 'text/csv')
-    post pages_index_url
+    file = fixture_file_upload('/files/session_history.csv', 'text/csv')
+    post '/pages/index', params: { csv_file: file }
     assert_response :success
   end
 
+  test "should fails" do
+    file = fixture_file_upload('/files/Untitled Document 1.txt', 'text/plain')
+    post '/pages/index', params: { csv_file: file }
+    assert_response :success
+  end
 end
