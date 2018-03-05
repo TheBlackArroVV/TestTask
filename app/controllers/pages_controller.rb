@@ -41,8 +41,8 @@ class PagesController < ApplicationController
     @passed_builds = []
     @failed_builds = []
 
-    @created_at_date = @created_at.clone
-    @created_at_date.map!(&:to_date)
+    @date = @created_at.clone
+    @date.map!(&:to_date)
 
     @summary_status.each do |c|
       if c == 'passed'
@@ -57,10 +57,10 @@ class PagesController < ApplicationController
       end
     end
 
-    for i in 0..@created_at_date.count - 1 do
-      for j in i + 1..@created_at_date.count - 1 do
-        next unless @created_at_date[i] == @created_at_date[j] && !@created_at_date[i].nil?
-        @created_at_date[j] = nil
+    for i in 0..@date.count - 1 do
+      for j in i + 1..@date.count - 1 do
+        next unless @date[i] == @date[j] && !@date[i].nil?
+        @date[j] = nil
         @passed_builds[i] = @passed_builds[i] + @passed_builds[j]
         @passed_builds[j] = nil
         @failed_builds[i] = @failed_builds[i] + @failed_builds[j]
@@ -68,7 +68,15 @@ class PagesController < ApplicationController
       end
     end
 
-    @created_at_date.delete(nil)
+    # @date.each do |c|
+    #     @date.each do |el|
+    #       next unless c == el && !c.nil?
+    #
+    #       end
+    #     end
+    # end
+
+    @date.delete(nil)
     @passed_builds.delete(nil)
     @failed_builds.delete(nil)
 
@@ -92,7 +100,7 @@ class PagesController < ApplicationController
     end
 
     @data_c = {
-      labels: @created_at_date,
+      labels: @date,
       datasets: [
         {
           label:  'Abnormal',
