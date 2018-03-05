@@ -68,14 +68,6 @@ class PagesController < ApplicationController
       end
     end
 
-    # @date.each do |c|
-    #     @date.each do |el|
-    #       next unless c == el && !c.nil?
-    #
-    #       end
-    #     end
-    # end
-
     @date.delete(nil)
     @passed_builds.delete(nil)
     @failed_builds.delete(nil)
